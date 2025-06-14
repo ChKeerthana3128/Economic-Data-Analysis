@@ -7,17 +7,17 @@ import os
 # Set page configuration
 st.set_page_config(page_title="Cost of Living Analysis Dashboard", layout="wide")
 
-# Custom CSS for styling with improved text visibility
+# Custom CSS for styling with highly visible text
 st.markdown("""
     <style>
     .main { background-color: #f5f7fa; }
     .sidebar .sidebar-content { background-color: #e1e8f0; }
-    .stButton>button { background-color: #4e73df; color: #ffffff; border-radius: 5px; font-weight: 600; }
-    .stSelectbox, .stSlider { background-color: #ffffff; border-radius: 5px; padding: 10px; color: #1a1a1a; }
-    h1, h2, h3 { color: #1a1a1a; font-weight: 700; text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1); }
+    .stButton>button { background-color: #4e73df; color: #ffffff; border-radius: 5px; font-weight: 700; font-size: 1.2em; }
+    .stSelectbox, .stSlider { background-color: #ffffff; border-radius: 5px; padding: 10px; color: #000000; font-weight: 700; font-size: 1.1em; }
+    h1, h2, h3 { color: #000000; font-weight: 800; font-size: 2em; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
     .metric-card { background-color: #ffffff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .metric-card p, .metric-card div { color: #1a1a1a; font-weight: 600; font-size: 1.1em; }
-    .stMarkdown p, .stMarkdown div { color: #1a1a1a; font-weight: 500; }
+    .metric-card p, .metric-card div { color: #000000; font-weight: 800; font-size: 1.3em; }
+    .stMarkdown p, .stMarkdown div { color: #000000; font-weight: 700; font-size: 1.1em; }
     </style>
 """, unsafe_allow_html=True)
 
