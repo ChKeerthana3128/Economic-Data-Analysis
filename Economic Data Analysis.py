@@ -7,17 +7,17 @@ import os
 # Set page configuration
 st.set_page_config(page_title="Cost of Living Analysis Dashboard", layout="wide")
 
-# Custom CSS for styling with highly visible text
+# Custom CSS for styling with white text and darker backgrounds
 st.markdown("""
     <style>
-    .main { background-color: #f5f7fa; }
-    .sidebar .sidebar-content { background-color: #e1e8f0; }
+    .main { background-color: #333333; }
+    .sidebar .sidebar-content { background-color: #333333; }
     .stButton>button { background-color: #4e73df; color: #ffffff; border-radius: 5px; font-weight: 700; font-size: 1.2em; }
-    .stSelectbox, .stSlider { background-color: #ffffff; border-radius: 5px; padding: 10px; color: #000000; font-weight: 700; font-size: 1.1em; }
-    h1, h2, h3 { color: #000000; font-weight: 800; font-size: 2em; text-shadow: 1px 1px 2px rgba(255,255,255,0.5); }
-    .metric-card { background-color: #ffffff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    .metric-card p, .metric-card div { color: #000000; font-weight: 800; font-size: 1.3em; }
-    .stMarkdown p, .stMarkdown div { color: #000000; font-weight: 700; font-size: 1.1em; }
+    .stSelectbox, .stSlider { background-color: #4a4a4a; border-radius: 5px; padding: 10px; color: #ffffff; font-weight: 700; font-size: 1.1em; }
+    h1, h2, h3 { color: #ffffff; font-weight: 800; font-size: 2em; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+    .metric-card { background-color: #4a4a4a; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .metric-card p, .metric-card div { color: #ffffff; font-weight: 800; font-size: 1.3em; }
+    .stMarkdown p, .stMarkdown div { color: #ffffff; font-weight: 700; font-size: 1.1em; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -77,7 +77,8 @@ fig1 = px.scatter(filtered_df, x='Cost of Living Index', y='Rent Index', color='
                   size='Local Purchasing Power Index', hover_data=['Country'],
                   title='Cost of Living vs. Rent Index (Size: Purchasing Power)',
                   labels={'Cost of Living Index': 'Cost of Living Index', 'Rent Index': 'Rent Index'})
-fig1.update_layout(title_x=0.5, height=500, showlegend=False if country != "All" else True)
+fig1.update_layout(title_x=0.5, height=500, showlegend=False if country != "All" else True,
+                   title_font_color='#ffffff', font_color='#ffffff')
 st.plotly_chart(fig1, use_container_width=True)
 
 # Two-column layout for additional charts
@@ -90,7 +91,7 @@ with col_left:
     fig2 = px.bar(top_cost, x='Cost of Living Index', y='Country', text_auto='.2f',
                   title="Top 10 Countries by Cost of Living Index",
                   labels={'Cost of Living Index': 'Cost of Living Index'})
-    fig2.update_layout(title_x=0.5, height=400)
+    fig2.update_layout(title_x=0.5, height=400, title_font_color='#ffffff', font_color='#ffffff')
     st.plotly_chart(fig2, use_container_width=True)
 
     # Groceries Index Distribution
@@ -98,7 +99,7 @@ with col_left:
     fig4 = px.histogram(filtered_df, x='Groceries Index', nbins=20,
                         title="Distribution of Groceries Index Across Countries",
                         labels={'Groceries Index': 'Groceries Index'})
-    fig4.update_layout(title_x=0.5, height=400)
+    fig4.update_layout(title_x=0.5, height=400, title_font_color='#ffffff', font_color='#ffffff')
     st.plotly_chart(fig4, use_container_width=True)
 
 with col_right:
@@ -108,7 +109,7 @@ with col_right:
     fig3 = px.bar(top_purchasing, x='Local Purchasing Power Index', y='Country', text_auto='.2f',
                   title="Top 10 Countries by Purchasing Power Index",
                   labels={'Local Purchasing Power Index': 'Purchasing Power Index'})
-    fig3.update_layout(title_x=0.5, height=400)
+    fig3.update_layout(title_x=0.5, height=400, title_font_color='#ffffff', font_color='#ffffff')
     st.plotly_chart(fig3, use_container_width=True)
 
     # Restaurant Price Index vs. Purchasing Power
@@ -117,7 +118,7 @@ with col_right:
                       color='Country', hover_data=['Country'],
                       title="Restaurant Price Index vs. Purchasing Power Index",
                       labels={'Restaurant Price Index': 'Restaurant Price Index', 'Local Purchasing Power Index': 'Purchasing Power Index'})
-    fig5.update_layout(title_x=0.5, height=400, showlegend=False if country != "All" else True)
+    fig5.update_layout(title_x=0.5, height=400, title_font_color='#ffffff', font_color='#ffffff', showlegend=False if country != "All" else True)
     st.plotly_chart(fig5, use_container_width=True)
 
 # Footer
