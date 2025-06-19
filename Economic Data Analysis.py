@@ -4,13 +4,13 @@ import plotly.express as px
 import plotly.io as pio
 import numpy as np
 
-# Global Plotly style
+# Set global Plotly theme
 pio.templates.default = "plotly_dark"
 
-# Page settings
+# Page configuration
 st.set_page_config(page_title="Cost of Living Dashboard", page_icon="📊", layout="wide")
 
-# Optional CSS Styling
+# Optional dark theme styling
 st.markdown("""
     <style>
     .main { background-color: #333333; }
@@ -19,67 +19,60 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Load default or uploaded dataset
+# Load dataset
 @st.cache_data
-def load_default_data():
+def load_data():
     return pd.read_csv("Cost_of_Living_Index_2022.csv")
 
-st.sidebar.header("📁 Data Source")
-uploaded_file = st.sidebar.file_uploader("Upload Cost of Living CSV", type=["csv"])
+df = load_data()
 
-if uploaded_file:
-    df = pd.read_csv(uploaded_file)
-    st.sidebar.success("✅ File uploaded successfully.")
-else:
-    df = load_default_data()
-    st.sidebar.info("Using default dataset (Cost_of_Living_Index_2022.csv).")
-
-# Preprocess
+# Clean and validate data
 df.columns = df.columns.str.strip()
-st.write("🔍 Available columns in dataset:", df.columns.tolist())
-
-# Drop rows with missing values in available key columns
 for col in ['Country', 'City']:
     if col in df.columns:
         df = df.dropna(subset=[col])
 
-# Filter out rows with missing or non-numeric index values
+# Keep only numeric rows for plotting
 numeric_cols = ['Cost of Living Index', 'Rent Index', 'Groceries Index',
                 'Restaurant Price Index', 'Local Purchasing Power Index']
 existing_numeric_cols = [col for col in numeric_cols if col in df.columns]
 df = df.dropna(subset=existing_numeric_cols)
 
-# Sidebar Country Filter
-countries = df["Country"].dropna().unique().tolist() if "Country" in df.columns else []
-selected_countries = st.sidebar.multiselect("🌍 Filter by Country", sorted(countries), default=countries[:1])
+# Country filter
+countries = sorted(df["Country"].dropna().unique().tolist())
+selected_countries = st.sidebar.multiselect("🌍 Filter by Country", countries, default=countries[:1])
 filtered_df = df[df["Country"].isin(selected_countries)] if selected_countries else df
 
-# Title and description
+# Title
 st.title("📊 Cost of Living Analysis Dashboard")
-st.markdown("Interactive dashboard to explore global cost-of-living indicators using 2022 data.")
+st.markdown("Explore cost-of-living metrics for global cities based on 2022 data.")
 
 # KPIs
 col1, col2, col3 = st.columns(3)
-if "Cost of Living Index" in df.columns:
+if "Cost of Living Index" in filtered_df.columns:
     col1.metric("Avg Cost of Living Index", f"{filtered_df['Cost of Living Index'].mean():.2f}")
-if "Rent Index" in df.columns:
+if "Rent Index" in filtered_df.columns:
     col2.metric("Avg Rent Index", f"{filtered_df['Rent Index'].mean():.2f}")
-if "Local Purchasing Power Index" in df.columns:
+if "Local Purchasing Power Index" in filtered_df.columns:
     col3.metric("Avg Purchasing Power", f"{filtered_df['Local Purchasing Power Index'].mean():.2f}")
 
 st.markdown("---")
 
-# Scatter: Cost of Living vs Rent
-if all(col in filtered_df.columns for col in ['Cost of Living Index', 'Rent Index', 'Country', 'Local Purchasing Power Index', 'City']):
+# Scatter: Cost of Living vs Rent Index
+if all(col in filtered_df.columns for col in ['Cost of Living Index', 'Rent Index', 'Country']):
     st.subheader("🟣 Cost of Living vs Rent Index")
     fig1 = px.scatter(
-        filtered_df, x='Cost of Living Index', y='Rent Index', color='Country',
-        size='Local Purchasing Power Index', hover_name='City',
-        title='Cost of Living vs Rent Index (Size = Purchasing Power)',
+        filtered_df,
+        x='Cost of Living Index',
+        y='Rent Index',
+        color='Country',
+        size=filtered_df.get('Local Purchasing Power Index', None),
+        hover_name=filtered_df.get('City', None),
+        title='Cost of Living vs Rent Index'
     )
     st.plotly_chart(fig1, use_container_width=True)
 
-# Bar charts and histograms
+# Two-column charts
 col_left, col_right = st.columns(2)
 
 with col_left:
@@ -98,29 +91,35 @@ with col_right:
         fig3 = px.bar(top_power, x='Local Purchasing Power Index', y='Country', orientation='h')
         st.plotly_chart(fig3, use_container_width=True)
 
-# Histogram of groceries index
+# Groceries index distribution
 if "Groceries Index" in filtered_df.columns:
     st.subheader("🛒 Groceries Index Distribution")
     fig4 = px.histogram(filtered_df, x='Groceries Index', nbins=25)
     st.plotly_chart(fig4, use_container_width=True)
 
-# Scatter: Restaurant Price vs Purchasing Power
-if all(col in filtered_df.columns for col in ['Restaurant Price Index', 'Local Purchasing Power Index']):
+# Restaurant vs Purchasing Power
+if "Restaurant Price Index" in filtered_df.columns and "Local Purchasing Power Index" in filtered_df.columns:
     st.subheader("🍽️ Restaurant Price vs Purchasing Power")
-    fig5 = px.scatter(filtered_df, x='Restaurant Price Index', y='Local Purchasing Power Index',
-                      color='Country', hover_name='City')
+    fig5 = px.scatter(
+        filtered_df,
+        x='Restaurant Price Index',
+        y='Local Purchasing Power Index',
+        color='Country',
+        hover_name=filtered_df.get('City', None),
+        title="Restaurant Price vs Purchasing Power Index"
+    )
     st.plotly_chart(fig5, use_container_width=True)
 
-# Correlation Matrix
+# Correlation heatmap
 if len(existing_numeric_cols) >= 2:
-    st.subheader("🧮 Index Correlation Matrix")
+    st.subheader("🧮 Correlation Matrix of Indices")
     fig6 = px.imshow(filtered_df[existing_numeric_cols].corr(), text_auto=True, aspect="auto")
     st.plotly_chart(fig6, use_container_width=True)
 
 # Download filtered data
 st.markdown("---")
 st.download_button(
-    label="⬇️ Download Filtered Data as CSV",
+    label="⬇️ Download Filtered Data",
     data=filtered_df.to_csv(index=False),
     file_name="filtered_cost_of_living.csv",
     mime="text/csv"
@@ -128,4 +127,4 @@ st.download_button(
 
 # Footer
 st.markdown("---")
-st.caption("Developed for Economic Data Analysis Project | Source: Numbeo (2022)")
+st.caption("Developed for Economic Data Analysis Project | Source: Cost_of_Living_Index_2022.csv")
